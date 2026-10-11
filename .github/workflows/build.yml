@@ -19,23 +19,26 @@ jobs:
         distribution: 'temurin'
         cache: gradle
 
-    - name: Ultimate Smart Build & APK Extract
+    - name: Build Android App Directly
       run: |
-        echo "=== 1. Searching for gradlew location ==="
-        GRADLEW_PATH=$(find . -maxdepth 3 -name "gradlew" | head -n 1)
-        GRADLE_DIR=$(dirname "$GRADLEW_PATH")
+        # ค้นหาตำแหน่งโฟลเดอร์จริงที่มี build.gradle หรือ app/build.gradle
+        PROJECT_DIR=$(find . -name "build.gradle" -not -path "*/.*" | xargs dirname | head -n 1)
+        echo "Found Android project at: $PROJECT_DIR"
         
-        echo "Found gradlew at: $GRADLEW_PATH"
-        cd "$GRADLE_DIR"
+        cd "$PROJECT_DIR"
+        chmod +x gradlew || chmod +x ../gradlew || true
         
-        echo "=== 2. Granting Executable Permissions ==="
-        chmod +x gradlew
-        
-        echo "=== 3. Building Debug APK ==="
-        ./gradlew assembleDebug --no-daemon
-        
-        echo "=== 4. Collecting generated APKs ==="
-        cd $GITHUB_WORKSPACE
+        # ลองรันบิลด์จากตำแหน่งที่เจอ
+        if [ -f "./gradlew" ]; then
+          ./gradlew assembleDebug --no-daemon
+        elif [ -f "../gradlew" ]; then
+          ../gradlew assembleDebug --no-daemon
+        else
+          gradlew assembleDebug --no-daemon
+        fi
+
+    - name: Extract and Save APK
+      run: |
         mkdir -p final_apk_output
         find . -name "*.apk" -type f -exec cp {} final_apk_output/ \;
 
