@@ -18,8 +18,9 @@ jobs:
         distribution: 'temurin'
         cache: gradle
 
-    - name: Grant execute permission and build
+    - name: Build APK inside nested folder
       run: |
+        cd FaceShopApp
         chmod +x gradlew
         ./gradlew assembleDebug
 
