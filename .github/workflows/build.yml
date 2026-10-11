@@ -21,5 +21,11 @@ jobs:
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
 
-    - name: List Gradle Tasks
-      run: ./gradlew tasks --all
+    - name: Build APK
+      run: ./gradlew assembleDebug --warning-mode all
+
+    - name: Upload APK Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: FaceShop-Calculator
+        path: "**/build/outputs/apk/debug/*.apk"
