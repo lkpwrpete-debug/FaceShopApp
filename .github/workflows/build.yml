@@ -19,11 +19,10 @@ jobs:
         distribution: 'temurin'
         cache: gradle
 
-    - name: Grant Execute and Build Correct Module
+    - name: Grant Execute and Build
       run: |
         chmod +x gradlew
-        # สั่งบิลด์ระบุ Module :app โดยตรงจาก Root
-        ./gradlew :app:assembleDebug --no-daemon
+        ./gradlew :assembleDebug --no-daemon
 
     - name: Extract and Save APK
       run: |
