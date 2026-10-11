@@ -22,7 +22,7 @@ jobs:
     - name: Grant Execute and Build
       run: |
         chmod +x gradlew
-        ./gradlew :assembleDebug --no-daemon
+        ./gradlew :app:assembleDebug --no-daemon
 
     - name: Extract and Save APK
       run: |
