@@ -9,28 +9,38 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
+    - name: Checkout Repository
+      uses: actions/checkout@v4
 
-    - name: set up JDK 17
+    - name: Set up JDK 17
       uses: actions/setup-java@v4
       with:
         java-version: '17'
         distribution: 'temurin'
         cache: gradle
 
-    - name: Build APK inside nested folder
+    - name: Ultimate Smart Build & APK Extract
       run: |
-        cd FaceShopApp
+        echo "=== 1. Searching for gradlew location ==="
+        GRADLEW_PATH=$(find . -maxdepth 3 -name "gradlew" | head -n 1)
+        GRADLE_DIR=$(dirname "$GRADLEW_PATH")
+        
+        echo "Found gradlew at: $GRADLEW_PATH"
+        cd "$GRADLE_DIR"
+        
+        echo "=== 2. Granting Executable Permissions ==="
         chmod +x gradlew
-        ./gradlew assembleDebug
+        
+        echo "=== 3. Building Debug APK ==="
+        ./gradlew assembleDebug --no-daemon
+        
+        echo "=== 4. Collecting generated APKs ==="
+        cd $GITHUB_WORKSPACE
+        mkdir -p final_apk_output
+        find . -name "*.apk" -type f -exec cp {} final_apk_output/ \;
 
-    - name: Copy APKs to flat folder
-      run: |
-        mkdir -p output_apk
-        find . -name "*.apk" -exec cp {} output_apk/ \;
-
-    - name: Upload APK Artifact
+    - name: Upload Final APK Artifact
       uses: actions/upload-artifact@v4
       with:
         name: FaceShop-Calculator
-        path: output_apk/*.apk
+        path: final_apk_output/*.apk
