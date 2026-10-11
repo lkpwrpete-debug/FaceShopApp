@@ -23,8 +23,13 @@ jobs:
         chmod +x gradlew
         ./gradlew assembleDebug
 
+    - name: Copy APKs to flat folder
+      run: |
+        mkdir -p output_apk
+        find . -name "*.apk" -exec cp {} output_apk/ \;
+
     - name: Upload APK Artifact
       uses: actions/upload-artifact@v4
       with:
         name: FaceShop-Calculator
-        path: "**/app/build/outputs/apk/debug/*.apk"
+        path: output_apk/*.apk
