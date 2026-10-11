@@ -19,22 +19,31 @@ jobs:
         distribution: 'temurin'
         cache: gradle
 
-    - name: Build Android App Directly
+    - name: Debug and Scan Project Structure
       run: |
-        # ค้นหาตำแหน่งโฟลเดอร์จริงที่มี build.gradle หรือ app/build.gradle
-        PROJECT_DIR=$(find . -name "build.gradle" -not -path "*/.*" | xargs dirname | head -n 1)
-        echo "Found Android project at: $PROJECT_DIR"
+        echo "=== CURRENT DIRECTORY ==="
+        pwd
+        echo "=== LIST ALL FILES & FOLDERS ==="
+        find . -maxdepth 3 -not -path '*/.*'
         
-        cd "$PROJECT_DIR"
-        chmod +x gradlew || chmod +x ../gradlew || true
+        echo "=== FIND BUILD.GRADLE ==="
+        TARGET_BUILD=$(find . -name "build.gradle" -not -path '*/.*' | head -n 1)
+        echo "Target build.gradle found at: $TARGET_BUILD"
         
-        # ลองรันบิลด์จากตำแหน่งที่เจอ
+        DIR_PATH=$(dirname "$TARGET_BUILD")
+        cd "$DIR_PATH"
+        
+        echo "=== RUNNING GRADLE BUILD ==="
+        # ค้นหา gradlew ที่ใกล้ที่สุด
         if [ -f "./gradlew" ]; then
+          chmod +x ./gradlew
           ./gradlew assembleDebug --no-daemon
         elif [ -f "../gradlew" ]; then
+          chmod +x ../gradlew
           ../gradlew assembleDebug --no-daemon
         else
-          gradlew assembleDebug --no-daemon
+          # ใช้ gradle กลางถ้าไม่มี gradlew
+          gradle assembleDebug --no-daemon
         fi
 
     - name: Extract and Save APK
