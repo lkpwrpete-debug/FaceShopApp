@@ -19,32 +19,11 @@ jobs:
         distribution: 'temurin'
         cache: gradle
 
-    - name: Debug and Scan Project Structure
+    - name: Grant Execute and Build Correct Module
       run: |
-        echo "=== CURRENT DIRECTORY ==="
-        pwd
-        echo "=== LIST ALL FILES & FOLDERS ==="
-        find . -maxdepth 3 -not -path '*/.*'
-        
-        echo "=== FIND BUILD.GRADLE ==="
-        TARGET_BUILD=$(find . -name "build.gradle" -not -path '*/.*' | head -n 1)
-        echo "Target build.gradle found at: $TARGET_BUILD"
-        
-        DIR_PATH=$(dirname "$TARGET_BUILD")
-        cd "$DIR_PATH"
-        
-        echo "=== RUNNING GRADLE BUILD ==="
-        # ค้นหา gradlew ที่ใกล้ที่สุด
-        if [ -f "./gradlew" ]; then
-          chmod +x ./gradlew
-          ./gradlew assembleDebug --no-daemon
-        elif [ -f "../gradlew" ]; then
-          chmod +x ../gradlew
-          ../gradlew assembleDebug --no-daemon
-        else
-          # ใช้ gradle กลางถ้าไม่มี gradlew
-          gradle assembleDebug --no-daemon
-        fi
+        chmod +x gradlew
+        # สั่งบิลด์ระบุ Module :app โดยตรงจาก Root
+        ./gradlew :app:assembleDebug --no-daemon
 
     - name: Extract and Save APK
       run: |
